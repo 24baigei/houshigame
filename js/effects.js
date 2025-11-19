@@ -72,6 +72,134 @@ class EffectsManager {
         }, 500);
     }
 
+    // 触发 ASCII 字符流动画
+    triggerWalkAnimation(sanity, actionType, callback) {
+        const overlay = document.getElementById('ascii-overlay');
+        if (!overlay) {
+            if (callback) callback();
+            return;
+        }
+
+        overlay.classList.add('active');
+        overlay.innerHTML = ''; // 清空
+        
+        // 解析方向
+        let direction = 'forward';
+        if (actionType.includes('左')) direction = 'left';
+        if (actionType.includes('右')) direction = 'right';
+        if (actionType.includes('退') || actionType.includes('后')) direction = 'back';
+
+        // SAN值影响颜色
+        if (sanity < 40) {
+            overlay.classList.add('insane');
+        } else {
+            overlay.classList.remove('insane');
+        }
+
+        this.playFootstepSound();
+
+        const duration = 1200;
+        const frameTime = 30; // 30ms 一帧
+        let elapsed = 0;
+        
+        // 每一行的字符宽度 (估算)
+        const cols = Math.floor(window.innerWidth / 10);
+        const center = Math.floor(cols / 2);
+        let pathCenter = center;
+
+        const interval = setInterval(() => {
+            elapsed += frameTime;
+            
+            // 动态生成一行
+            // 1. 计算路径中心偏移
+            if (direction === 'left') pathCenter -= 0.5;
+            if (direction === 'right') pathCenter += 0.5;
+            
+            // 扰动
+            const noise = (Math.random() - 0.5) * (sanity < 50 ? 2 : 0.5);
+            const currentCenter = Math.floor(pathCenter + noise);
+
+            // 2. 生成字符串
+            let line = "";
+            const pathWidth = 10 + (direction === 'back' ? (elapsed/duration)*10 : 0); // 后退时路径变宽?
+            
+            for (let i = 0; i < cols; i++) {
+                if (i === currentCenter - Math.floor(pathWidth/2)) {
+                    line += direction === 'left' ? '/' : (direction === 'right' ? '\\' : '|');
+                } else if (i === currentCenter + Math.floor(pathWidth/2)) {
+                    line += direction === 'left' ? '/' : (direction === 'right' ? '\\' : '|');
+                } else if (i > currentCenter - pathWidth/2 && i < currentCenter + pathWidth/2) {
+                    // 路径内部：空或者少量噪点
+                    line += Math.random() > 0.95 ? '.' : ' ';
+                } else {
+                    // 路径外部：随机乱码/噪点
+                    const chars = " .`',:;^";
+                    // SAN值越低，外部噪点越混乱
+                    const chaosChars = "@#$%&?!";
+                    const charSet = sanity < 30 ? chaosChars : chars;
+                    line += Math.random() > 0.8 ? charSet[Math.floor(Math.random() * charSet.length)] : ' ';
+                }
+            }
+
+            // 3. 更新 DOM
+            // 创建新行
+            const div = document.createElement('div');
+            div.textContent = line;
+            overlay.appendChild(div);
+            
+            // 移除旧行，保持屏幕不溢出太多
+            if (overlay.children.length > 40) {
+                overlay.removeChild(overlay.firstChild);
+            }
+            
+            // 滚动到底部 (flex-end handle this visually, but we keep DOM clean)
+
+            if (elapsed >= duration) {
+                clearInterval(interval);
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.innerHTML = ''; // 清理
+                    if (callback) callback();
+                }, 200);
+            }
+        }, frameTime);
+    }
+
+    playFootstepSound() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        
+        // 简单的低频噪音模拟脚步声
+        const t = this.audioCtx.currentTime;
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        
+        osc.frequency.setValueAtTime(100, t);
+        osc.frequency.exponentialRampToValueAtTime(10, t + 0.1);
+        
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+        
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        
+        osc.start(t);
+        osc.stop(t + 0.1);
+
+        // 第二步
+        const osc2 = this.audioCtx.createOscillator();
+        const gain2 = this.audioCtx.createGain();
+        osc2.frequency.setValueAtTime(100, t + 0.6);
+        osc2.frequency.exponentialRampToValueAtTime(10, t + 0.7);
+        gain2.gain.setValueAtTime(0.2, t + 0.6);
+        gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.7);
+        
+        osc2.connect(gain2);
+        gain2.connect(this.audioCtx.destination);
+        
+        osc2.start(t + 0.6);
+        osc2.stop(t + 0.7);
+    }
+
     // 播放打字机音效 (合成高频短促音)
     playTypingSound() {
         if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
@@ -112,7 +240,238 @@ class EffectsManager {
             case 'level4':
                 this.startOfficeRain();
                 break;
+            case 'level11':
+                this.startCityAmbience();
+                break;
+            case 'level9':
+            case 'metro':
+                this.startIndustrialRumble();
+                break;
+            case 'level7':
+                this.startUnderwater();
+                break;
+            case 'level8':
+                this.startCaveWind();
+                break;
+            case 'level52':
+                this.startSchoolHum();
+                break;
+            case 'level188':
+                this.startWindHowl();
+                break;
+            case 'level3999':
+                this.startArcadeMusic();
+                break;
+            case 'the_end':
+                // 静默，只有微弱的硬盘读写声
+                this.startSchoolHum(); // 复用微弱嗡嗡声
+                break;
         }
+    }
+
+    // Level 3999: 8-bit 琶音 (模拟街机音乐)
+    startArcadeMusic() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        
+        const osc = this.audioCtx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.value = 440;
+        
+        const gain = this.audioCtx.createGain();
+        gain.gain.value = 0.05;
+
+        // 简单的琶音序列
+        const arp = this.audioCtx.createOscillator();
+        arp.type = 'square';
+        arp.frequency.value = 8; // 速度
+        
+        const arpGain = this.audioCtx.createGain();
+        arpGain.gain.value = 50;
+
+        arp.connect(arpGain);
+        arpGain.connect(osc.frequency);
+
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        
+        osc.start();
+        arp.start();
+
+        this.humOscillators.push({osc, gain});
+        this.humOscillators.push({osc: arp, gain: arpGain});
+    }
+
+    // Level 52: 学校嗡嗡声 (极其安静，偶尔有电流声)
+    startSchoolHum() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        // 复用低频嗡嗡声，但频率更高一点，模拟老式日光灯
+        const osc = this.audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 120;
+        const gain = this.audioCtx.createGain();
+        gain.gain.value = 0.02;
+        
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start();
+        this.humOscillators.push({osc, gain});
+    }
+
+    // Level 188: 高空风声
+    startWindHowl() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        
+        const bufferSize = this.audioCtx.sampleRate * 2;
+        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = this.audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 500;
+        
+        const gain = this.audioCtx.createGain();
+        gain.gain.value = 0.1;
+
+        // 快速变化的LFO模拟阵风
+        const lfo = this.audioCtx.createOscillator();
+        lfo.type = 'triangle';
+        lfo.frequency.value = 0.5;
+        const lfoGain = this.audioCtx.createGain();
+        lfoGain.gain.value = 0.05;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
+        lfo.start();
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        noise.start();
+
+        this.humOscillators.push({osc: noise, gain});
+        this.humOscillators.push({osc: lfo, gain: lfoGain});
+    }
+
+    // Level 7: 水下闷响 (低通滤波器极重)
+    startUnderwater() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+        const bufferSize = this.audioCtx.sampleRate * 2;
+        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = this.audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 200; // 只有低频
+
+        const gain = this.audioCtx.createGain();
+        gain.gain.value = 0.3; // 水压感
+
+        // 缓慢的压力波动
+        const lfo = this.audioCtx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.05;
+        const lfoGain = this.audioCtx.createGain();
+        lfoGain.gain.value = 0.1;
+        
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
+        lfo.start();
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        noise.start();
+
+        this.humOscillators.push({osc: noise, gain});
+        this.humOscillators.push({osc: lfo, gain: lfoGain});
+    }
+
+    // Level 8: 洞穴风声 (带回声)
+    startCaveWind() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+        const bufferSize = this.audioCtx.sampleRate * 2;
+        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = this.audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 400;
+        filter.Q.value = 1;
+
+        const gain = this.audioCtx.createGain();
+        gain.gain.value = 0.1;
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        noise.start();
+
+        this.humOscillators.push({osc: noise, gain});
+    }
+
+    // Level 11: 城市风声 (高通噪声 + 缓慢LFO)
+    startCityAmbience() {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+        const bufferSize = this.audioCtx.sampleRate * 2;
+        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = this.audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 300; // 风声
+
+        const gain = this.audioCtx.createGain();
+        gain.gain.value = 0.05;
+
+        // 模拟风的强弱变化
+        const lfo = this.audioCtx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.1;
+        const lfoGain = this.audioCtx.createGain();
+        lfoGain.gain.value = 0.03;
+        
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
+        lfo.start();
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        noise.start();
+
+        this.humOscillators.push({osc: noise, gain});
+        this.humOscillators.push({osc: lfo, gain: lfoGain});
     }
 
     // Level 3: 高频电流声

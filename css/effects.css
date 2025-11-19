@@ -185,11 +185,11 @@ body {
     transition: all 0.1s;
 }
 
-/* Level 2 热浪视效 */
-@keyframes heat-pulse {
-    0% { box-shadow: inset 0 0 50px rgba(255, 50, 0, 0.1); }
-    50% { box-shadow: inset 0 0 100px rgba(255, 50, 0, 0.3); }
-    100% { box-shadow: inset 0 0 50px rgba(255, 50, 0, 0.1); }
+/* Level 2 热浪视效 (性能优化版) */
+@keyframes heat-pulse-opacity {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+    100% { opacity: 0.3; }
 }
 
 .heat-active #crt-container::after {
@@ -201,6 +201,47 @@ body {
     bottom: 0;
     z-index: 5;
     pointer-events: none;
-    animation: heat-pulse 2s infinite ease-in-out;
+    /* 使用静态渐变替代昂贵的 box-shadow 模糊计算 */
+    background: radial-gradient(circle, transparent 60%, rgba(255, 50, 0, 0.4) 100%);
+    /* 动画仅改变透明度，GPU 开销极低 */
+    animation: heat-pulse-opacity 2s infinite ease-in-out;
     mix-blend-mode: overlay;
+}
+
+/* =========================================
+   ASCII 迷宫行走特效 (ASCII Walk Effect)
+   ========================================= */
+
+#ascii-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    
+    /* ASCII 字体设置 */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    line-height: 12px;
+    color: var(--text-color);
+    text-align: center;
+    white-space: pre;
+    overflow: hidden;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* 从底部向上滚动 */
+}
+
+#ascii-overlay.active {
+    opacity: 1;
+}
+
+#ascii-overlay.insane {
+    color: #ff3333;
+    text-shadow: 2px 0 #fff;
 }

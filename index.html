@@ -9,12 +9,48 @@
 </head>
 <body>
     <div id="crt-container" class="crt-overlay">
+        <!-- ASCII 迷宫特效层 -->
+        <pre id="ascii-overlay"></pre>
+
         <div class="scanline"></div>
         <div class="screen-content">
             <!-- 状态栏 -->
             <div id="status-bar">
-                <span class="status-item">SAN: <span id="san-value">100</span>%</span>
-                <span class="status-item">LOC: <span id="location">REALITY</span></span>
+                <div class="status-left">
+                    <span class="status-item">SAN: <span id="san-value">100</span>%</span>
+                    <span class="status-item">HP: <span id="hp-value">100</span>%</span>
+                    <span class="status-item">LOC: <span id="location">REALITY</span></span>
+                    <span class="status-item">$: <span id="money-value">0</span></span>
+                </div>
+                <div class="status-right">
+                    <button id="btn-logs" class="sys-btn">[日志]</button>
+                    <button id="btn-quests" class="sys-btn">[任务]</button>
+                    <button id="btn-save" class="sys-btn">[保存]</button>
+                    <button id="btn-load" class="sys-btn">[读取]</button>
+                </div>
+            </div>
+
+            <!-- 任务追踪栏 (新增) -->
+            <div id="quest-tracker" class="hidden">
+                <div class="quest-header">当前目标:</div>
+                <div id="active-quest-text">...</div>
+            </div>
+
+            <!-- 物品栏 -->
+            <div id="inventory-bar" class="hidden">
+                <span class="inventory-label">ITEMS:</span>
+                <div id="inventory-list">
+                    <!-- 物品将在这里生成，例如: [杏仁水] -->
+                </div>
+            </div>
+            
+            <!-- 侧边面板 (日志/任务) -->
+            <div id="side-panel" class="hidden">
+                <div class="panel-header">
+                    <span id="panel-title">SYSTEM LOG</span>
+                    <button id="btn-close-panel" class="sys-btn">[X]</button>
+                </div>
+                <div id="panel-content"></div>
             </div>
 
             <!-- 主文本显示区 -->

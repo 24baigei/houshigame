@@ -44,6 +44,87 @@ body.theme-level4 {
     --scanline-color: rgba(100, 150, 255, 0.03); /* 极淡的扫描线 */
 }
 
+/* Level 11 主题: 混凝土森林/紫红黄昏 */
+body.theme-level11 {
+    --bg-color: #1a1025; /* 深紫 */
+    --text-color: #ffccff; /* 霓虹粉白 */
+    --dim-text-color: #604070;
+    --highlight-color: #00ffff; /* 赛博青 */
+    --scanline-color: rgba(255, 0, 255, 0.05);
+}
+
+/* Metro 主题: 地铁系统/工业绿/肮脏 */
+body.theme-metro {
+    --bg-color: #051005; /* 深绿黑 */
+    --text-color: #80ff80; /* 终端绿 */
+    --dim-text-color: #205020;
+    --highlight-color: #ffff00; /* 警示黄 */
+    --scanline-color: rgba(0, 255, 0, 0.1);
+}
+
+/* Level 9 主题: 黑暗郊区/单色/极暗 */
+body.theme-level9 {
+    --bg-color: #020202; /* 几近全黑 */
+    --text-color: #505050; /* 暗灰 */
+    --dim-text-color: #202020;
+    --highlight-color: #aaaaaa;
+    --scanline-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Level 7 主题: 海洋之王/深蓝/水下 */
+body.theme-level7 {
+    --bg-color: #000510; /* 深海蓝 */
+    --text-color: #00aaff; /* 水蓝 */
+    --dim-text-color: #003366;
+    --highlight-color: #ccffff;
+    --scanline-color: rgba(0, 100, 255, 0.05);
+}
+
+/* Level 8 主题: 洞穴/岩石灰/蜘蛛网 */
+body.theme-level8 {
+    --bg-color: #0a0a0a;
+    --text-color: #a0a0a0;
+    --dim-text-color: #404040;
+    --highlight-color: #ffffff;
+    --scanline-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Level 52 主题: 学校/米黄/老旧 */
+body.theme-level52 {
+    --bg-color: #151510; /* 老旧纸张色调的黑 */
+    --text-color: #d0d0b0; /* 米黄 */
+    --dim-text-color: #606050;
+    --highlight-color: #ff3333; /* 红色警示 */
+    --scanline-color: rgba(200, 200, 150, 0.05);
+}
+
+/* Level 188 主题: 窗之庭/夜空蓝/虚无 */
+body.theme-level188 {
+    --bg-color: #050515; /* 深邃夜空 */
+    --text-color: #a0a0ff; /* 月光蓝 */
+    --dim-text-color: #303060;
+    --highlight-color: #ffffaa; /* 窗户灯光 */
+    --scanline-color: rgba(100, 100, 255, 0.03);
+}
+
+/* Level 3999 主题: 街机厅/霓虹紫/复古波 */
+body.theme-level3999 {
+    --bg-color: #250525; /* 霓虹紫黑 */
+    --text-color: #ff00ff; /* 亮粉 */
+    --dim-text-color: #800080;
+    --highlight-color: #00ffff; /* 赛博青 */
+    --scanline-color: rgba(255, 0, 255, 0.1);
+}
+
+/* The End 主题: 伪结局/纯白/代码 */
+body.theme-the_end {
+    --bg-color: #ffffff; /* 刺眼白 */
+    --text-color: #000000; /* 纯黑 */
+    --dim-text-color: #555555;
+    --highlight-color: #ff0000; /* 错误红 */
+    --scanline-color: rgba(0, 0, 0, 0.05);
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -79,12 +160,160 @@ body {
 #status-bar {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border-bottom: 1px solid var(--dim-text-color);
     padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    width: 100%; /* 确保占满宽度 */
+    flex-wrap: wrap; /* 允许小屏幕换行 */
+    gap: 0.5rem;
+}
+
+.status-left {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.status-right {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.sys-btn {
+    background: transparent;
+    border: none;
+    color: var(--dim-text-color);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 2px 5px;
+    transition: all 0.2s;
+}
+
+.sys-btn:hover {
+    color: var(--highlight-color);
+    text-shadow: 0 0 3px var(--highlight-color);
+}
+
+#inventory-bar {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    min-height: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+#inventory-bar.hidden {
+    display: none;
+}
+
+.inventory-label {
+    color: var(--dim-text-color);
+    font-weight: bold;
+}
+
+/* 任务追踪栏 */
+#quest-tracker {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--dim-text-color);
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+
+#quest-tracker.hidden {
+    display: none;
+}
+
+.quest-header {
+    color: var(--dim-text-color);
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+#active-quest-text {
+    color: var(--highlight-color);
+}
+
+/* 侧边面板 (日志/任务) */
+#side-panel {
+    position: absolute;
+    top: 10%;
+    right: 5%;
+    width: 40%;
+    max-width: 400px;
+    height: 80%;
+    background: var(--bg-color); /* 不透明背景 */
+    border: 2px solid var(--text-color);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    box-shadow: -5px 5px 0 rgba(0,0,0,0.5);
+}
+
+#side-panel.hidden {
+    display: none;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--text-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+#panel-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+}
+
+.log-entry {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dotted var(--dim-text-color);
+}
+
+.log-time {
+    color: var(--dim-text-color);
+    font-size: 0.8em;
+}
+
+#inventory-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.inventory-item {
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.inventory-item:hover {
+    color: var(--highlight-color);
+    text-decoration: underline;
+}
+
+/* 物品数量角标 */
+.item-count {
+    font-size: 0.8em;
+    color: var(--dim-text-color);
+    vertical-align: sub;
+    margin-left: 2px;
 }
 
 #terminal-output {
