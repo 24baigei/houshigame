@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Backrooms - 阈限档案</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/effects.css">
+</head>
+<body>
+    <div id="crt-container" class="crt-overlay">
+        <div class="scanline"></div>
+        <div class="screen-content">
+            <!-- 状态栏 -->
+            <div id="status-bar">
+                <span class="status-item">SAN: <span id="san-value">100</span>%</span>
+                <span class="status-item">LOC: <span id="location">REALITY</span></span>
+            </div>
+
+            <!-- 主文本显示区 -->
+            <div id="terminal-output">
+                <!-- 动态生成的文本将在这里显示 -->
+            </div>
+
+            <!-- 选项交互区 -->
+            <div id="choices-container">
+                <!-- 按钮将在这里生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="bgm-player" loop></audio>
+    <audio id="sfx-player"></audio>
+
+    <!-- 脚本引用 -->
+    <script src="js/data/story.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/engine.js"></script>
+</body>
+</html>

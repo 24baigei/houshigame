@@ -1,0 +1,163 @@
+:root {
+    /* 默认 (Level 0) 主题: 琥珀色/黄色系 */
+    /* 使用径向渐变模拟昏暗的黄色房间，而非纯黑 */
+    --bg-color: radial-gradient(circle at center, #1a1500 0%, #0a0800 60%, #000000 100%);
+    --text-color: #ffb000;
+    --dim-text-color: #996600;
+    --highlight-color: #ffcc00;
+    --scanline-color: rgba(255, 176, 0, 0.08);
+}
+
+/* Level 1 主题: 混凝土灰/冷白系 */
+body.theme-level1 {
+    --bg-color: #111;
+    --text-color: #cccccc;
+    --dim-text-color: #555555;
+    --highlight-color: #ffffff;
+    --scanline-color: rgba(200, 200, 200, 0.05);
+}
+
+/* Level 2 主题: 警示红/工业橙/高对比度 */
+body.theme-level2 {
+    --bg-color: #050000;
+    --text-color: #ff5500;
+    --dim-text-color: #662200;
+    --highlight-color: #ff3300;
+    --scanline-color: rgba(255, 50, 0, 0.1);
+}
+
+/* Level 3 主题: 砖红/高压电/幽闭 */
+body.theme-level3 {
+    --bg-color: #1a0500; /* 深砖红 */
+    --text-color: #ffaa80;
+    --dim-text-color: #662200;
+    --highlight-color: #ffffcc; /* 电火花白 */
+    --scanline-color: rgba(255, 100, 50, 0.08);
+}
+
+/* Level 4 主题: 现代办公/冷蓝/安全感 */
+body.theme-level4 {
+    --bg-color: #0f1115; /* 深蓝灰 */
+    --text-color: #aaccff;
+    --dim-text-color: #405060;
+    --highlight-color: #ffffff;
+    --scanline-color: rgba(100, 150, 255, 0.03); /* 极淡的扫描线 */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: var(--text-color);
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden; /* 防止滚动条出现，内容在内部滚动 */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: color 1s, background-color 1s; /* 主题切换时的平滑过渡 */
+}
+
+#crt-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: var(--bg-color); /* 改为 background 以支持 gradient */
+    box-shadow: inset 0 0 15rem rgba(0,0,0,0.9); /* 加深暗角，增强幽闭感 */
+}
+
+.screen-content {
+    padding: 2rem;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    position: relative;
+}
+
+#status-bar {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--dim-text-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#terminal-output {
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap; /* 保留格式 */
+    line-height: 1.6;
+    font-size: 1.1rem;
+    padding-right: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--dim-text-color) transparent;
+}
+
+/* 自定义滚动条 */
+#terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+#terminal-output::-webkit-scrollbar-track {
+    background: transparent;
+}
+#terminal-output::-webkit-scrollbar-thumb {
+    background-color: var(--dim-text-color);
+    border: 1px solid #000;
+}
+
+#choices-container {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 100px;
+}
+
+.choice-btn {
+    background: transparent;
+    border: 1px solid var(--dim-text-color);
+    color: var(--text-color);
+    padding: 0.8rem;
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.choice-btn:hover {
+    background-color: rgba(255, 176, 0, 0.1);
+    border-color: var(--highlight-color);
+    text-shadow: 0 0 5px var(--highlight-color);
+}
+
+.choice-btn::before {
+    content: '> ';
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.choice-btn:hover::before {
+    opacity: 1;
+}
+
+/* 文本样式工具类 */
+.highlight {
+    color: #fff;
+    font-weight: bold;
+}
+
+.warning {
+    color: #ff3333;
+}
+
+.glitch-text {
+    position: relative;
+    display: inline-block;
+}

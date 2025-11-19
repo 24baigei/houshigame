@@ -1,0 +1,206 @@
+/* CRT 屏幕效果 & 胶片噪点 */
+.crt-overlay::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background:
+        /* 扫描线 */
+        linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%
+        ),
+        /* RGB 色差 */
+        linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.06),
+            rgba(0, 255, 0, 0.02),
+            rgba(0, 0, 255, 0.06)
+        );
+    z-index: 10;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}
+
+/* 动态噪点层 - 模拟低保真画质 */
+.crt-overlay::after {
+    content: "";
+    position: absolute;
+    top: -150%;
+    left: -50%;
+    width: 300%;
+    height: 300%;
+    background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
+    animation: noise-shift 0.2s infinite;
+    pointer-events: none;
+    z-index: 1; /* 在背景之上，内容之下 */
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+}
+
+/* Level 3 电火花闪烁 */
+@keyframes flash-burst {
+    0%, 90% { background-color: transparent; opacity: 0; }
+    92% { background-color: #fff; opacity: 0.8; }
+    94% { background-color: #fff; opacity: 0.1; }
+    96% { background-color: transparent; opacity: 0; }
+    98% { background-color: #fff; opacity: 0.5; }
+    100% { background-color: transparent; opacity: 0; }
+}
+
+.flash-active #crt-container::after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    pointer-events: none;
+    animation: flash-burst 5s infinite; /* 5秒一次随机闪烁 */
+    mix-blend-mode: screen;
+}
+
+@keyframes noise-shift {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-5%, -5%); }
+    20% { transform: translate(-10%, 5%); }
+    30% { transform: translate(5%, -10%); }
+    40% { transform: translate(-5%, 15%); }
+    50% { transform: translate(-10%, 5%); }
+    60% { transform: translate(15%, 0); }
+    70% { transform: translate(0, 10%); }
+    80% { transform: translate(-15%, 0); }
+    90% { transform: translate(10%, 5%); }
+    100% { transform: translate(5%, 0); }
+}
+
+.crt-overlay {
+    animation: flicker 0.15s infinite;
+}
+
+/* 屏幕扫描线动画 */
+.scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 10;
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--scanline-color) 50%, rgba(0,0,0,0) 100%);
+    opacity: 0.1;
+    position: absolute;
+    bottom: 100%;
+    animation: scanline 10s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scanline {
+    0% { bottom: 100%; }
+    100% { bottom: -100px; }
+}
+
+@keyframes flicker {
+    0% { opacity: 0.97; }
+    5% { opacity: 0.95; }
+    10% { opacity: 0.9; }
+    15% { opacity: 0.95; }
+    20% { opacity: 0.99; }
+    25% { opacity: 0.95; }
+    30% { opacity: 0.9; }
+    35% { opacity: 0.96; }
+    40% { opacity: 0.98; }
+    45% { opacity: 0.95; }
+    50% { opacity: 0.99; }
+    55% { opacity: 0.93; }
+    60% { opacity: 0.9; }
+    65% { opacity: 0.96; }
+    70% { opacity: 1; }
+    75% { opacity: 0.97; }
+    80% { opacity: 0.95; }
+    85% { opacity: 0.92; }
+    90% { opacity: 0.96; }
+    95% { opacity: 0.99; }
+    100% { opacity: 0.94; }
+}
+
+/* 文字辉光与色差 */
+body {
+    text-shadow: 0 0 2px #C8C8C8;
+}
+
+/* 故障文字效果 */
+.glitch {
+    position: relative;
+    color: var(--text-color);
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 #ff00c1;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim-1 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 #00fff9;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim-2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0% { clip: rect(30px, 9999px, 10px, 0); }
+    20% { clip: rect(50px, 9999px, 60px, 0); }
+    40% { clip: rect(20px, 9999px, 80px, 0); }
+    60% { clip: rect(80px, 9999px, 30px, 0); }
+    80% { clip: rect(10px, 9999px, 40px, 0); }
+    100% { clip: rect(60px, 9999px, 20px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(10px, 9999px, 80px, 0); }
+    20% { clip: rect(80px, 9999px, 10px, 0); }
+    40% { clip: rect(40px, 9999px, 60px, 0); }
+    60% { clip: rect(20px, 9999px, 30px, 0); }
+    80% { clip: rect(60px, 9999px, 20px, 0); }
+    100% { clip: rect(30px, 9999px, 90px, 0); }
+}
+
+/* 切入特效时的屏幕扭曲 */
+.noclip-active #crt-container {
+    filter: hue-rotate(90deg) invert(100%);
+    transform: scale(1.05) skewX(2deg);
+    transition: all 0.1s;
+}
+
+/* Level 2 热浪视效 */
+@keyframes heat-pulse {
+    0% { box-shadow: inset 0 0 50px rgba(255, 50, 0, 0.1); }
+    50% { box-shadow: inset 0 0 100px rgba(255, 50, 0, 0.3); }
+    100% { box-shadow: inset 0 0 50px rgba(255, 50, 0, 0.1); }
+}
+
+.heat-active #crt-container::after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    pointer-events: none;
+    animation: heat-pulse 2s infinite ease-in-out;
+    mix-blend-mode: overlay;
+}
